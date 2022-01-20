@@ -1,13 +1,24 @@
 /* Puppeteer */
 const puppeteer = require("puppeteer");
 
+/* --------- Content to be written by user  --------- */
+
+const city = "Bhopal, MadhyaPradesh, India";
+const minDiscount = 10;
+const minDishPrice = 70;
+const maxDishPrice = 300;
+
+/* ---- User Content End ----- */
+
+
 /* Getting all the Restaurant Details */
 async function getDishDetail(URL, page) {
 
     //  URL of  link 
     await page.goto(URL);
 
-    const KFCdishes = await page.evaluate(() => {
+    const RestarantDetails = await page.evaluate((minDiscount, minDishPrice, maxDishPrice) => {
+
 
         /*Restaurant Name */
         const RestName = document.body.querySelector(".OEfxz ._3aqeL").innerText;
@@ -37,89 +48,67 @@ async function getDishDetail(URL, page) {
             const dishPrice = dishPriceInfo.querySelector(".rupee");
 
             try {
-                // Condition if the Dishes having offer
+                // Condition if the Dishes having Discount offer
 
                 /*  discounts to all orders */
-                const discountOf = (parseInt(SpecialOfferDetail[0].slice(0, 2)));
+                var discountOf = (parseInt(SpecialOfferDetail[0].slice(0, 2)));
+
                 /* Discount  Price of all the Dishes */
                 const getDiscount = parseFloat(dishPrice.innerText) - (parseFloat(dishPrice.innerText) * discountOf / 100);
 
+                const discntprice = getDiscount.toFixed(2);
+
                 /* DishDetailS */
-                if (dishPrice.innerText < 150) {
+                if (dishPrice.innerText < maxDishPrice && minDishPrice < dishPrice.innerText && discountOf >= minDiscount) {
 
                     /* pushing the dishesDetail in the Array */
                     dishArr.push({
                         DishName: dishName.innerText,
-                        DishPrice: dishPrice.innerText,
+                        DishPrice: dishPrice.innerText + "/-",
                         DiscountOffer: discountOf + "% Off",
-                        DiscountPrice: parseFloat(getDiscount.toFixed(2)),
+                        DiscountPrice: parseFloat(discntprice)
                     });
                 }
 
 
-            } 
-            catch (error) {
-
-                /* DishDetails */
-                if (dishPrice.innerText < 150) {
-                    dishArr.push({
-                        DishName: dishName.innerText,
-                        DishPrice: dishPrice.innerText,
-
-                    });
-                }
             }
+            catch (error) {
+             }
 
 
         });
 
-        /* Condition for the Sabse Sasti Dish */
-        let lowest = Number.POSITIVE_INFINITY
-        var MinPriceDish;
-        var lowestdishIndex;
-
-        for (let i = dishArr.length - 1; i >= 0; i--) {
-            var MinPriceDish = parseFloat(dishArr[i].DishPrice);
-
-            if (MinPriceDish < lowest) {
-                lowest = MinPriceDish;
-                lowestdishIndex = dishArr[i]
-            }
-
-        }
-                /*   -----------    */ 
-
+  
+    /*   -----------    */
+    
         return {
             Restaurant: "*******----------------*****-----Restaurant-----*****---------------------******",
             RestaurantName: RestName,
             ADDRESS: restAddress,
             specialOffer: SpecialOfferDetail,
-            // Restaurant_Dishes: dishArr
-            SastiDish: lowestdishIndex,
-
+            Restaurant_Dishes: dishArr,
         }
+    
 
-    });
+}, minDiscount, minDishPrice, maxDishPrice);
 
-    // Output of the  KFC dishes 
-    console.log(KFCdishes);
-
-    // Closing the browser
-    // await browser.close();
+// Output of the  RestaurantDetails 
+console.log(RestarantDetails);
 
 }
 
 async function main() {
 
-
     // Launch the browser
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
-
-    // Tracking for the Nagpur's Location
     await page.goto("https://www.swiggy.com/");
-    await page.type("#location", "Nagpur, Maharashtra, India");
+    
+    
+    
+    // Tracking for the particular Location
+    await page.type("#location", city);
 
     /* Waiting for the restaurant */
     await page.waitForSelector("div[tabindex='2']");
