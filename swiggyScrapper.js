@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
 /* --------- Content to be written by user  --------- */
 
 const city = "Bhopal, MadhyaPradesh, India";
-const minDiscount = 10;
+const minDiscount = 60;
 const minDishPrice = 70;
 const maxDishPrice = 300;
 
@@ -35,6 +35,10 @@ async function getDishDetail(URL, page) {
             SpecialOfferDetail.push(offer.innerText);
         });
 
+        /*  discounts to all orders */
+        var discountOf = (parseInt(SpecialOfferDetail[0].slice(0, 2)));
+
+
         const dish = document.querySelectorAll(".styles_detailsContainer__3VbXy");
 
         /* all the dishes detail in the array */
@@ -50,8 +54,8 @@ async function getDishDetail(URL, page) {
             try {
                 // Condition if the Dishes having Discount offer
 
-                /*  discounts to all orders */
-                var discountOf = (parseInt(SpecialOfferDetail[0].slice(0, 2)));
+                // /*  discounts to all orders */
+                // var discountOf = (parseInt(SpecialOfferDetail[0].slice(0, 2)));
 
                 /* Discount  Price of all the Dishes */
                 const getDiscount = parseFloat(dishPrice.innerText) - (parseFloat(dishPrice.innerText) * discountOf / 100);
@@ -73,27 +77,30 @@ async function getDishDetail(URL, page) {
 
             }
             catch (error) {
-             }
+            }
 
 
         });
 
-  
-    /*   -----------    */
-    
-        return {
-            Restaurant: "*******----------------*****-----Restaurant-----*****---------------------******",
-            RestaurantName: RestName,
-            ADDRESS: restAddress,
-            specialOffer: SpecialOfferDetail,
-            Restaurant_Dishes: dishArr,
+
+        /*   -----------    */
+        if (discountOf >= minDiscount) {
+            return {
+
+                Restaurant: "*******----------------*****-----Restaurant-----*****---------------------******",
+                RestaurantName: RestName,
+                ADDRESS: restAddress,
+                specialOffer: SpecialOfferDetail,
+                Restaurant_Dishes: dishArr,
+            }
         }
-    
 
-}, minDiscount, minDishPrice, maxDishPrice);
 
-// Output of the  RestaurantDetails 
-console.log(RestarantDetails);
+
+    }, minDiscount, minDishPrice, maxDishPrice);
+
+    // Output of the  RestaurantDetails 
+    console.log(RestarantDetails);
 
 }
 
@@ -104,9 +111,9 @@ async function main() {
     const page = await browser.newPage();
 
     await page.goto("https://www.swiggy.com/");
-    
-    
-    
+
+
+
     // Tracking for the particular Location
     await page.type("#location", city);
 
