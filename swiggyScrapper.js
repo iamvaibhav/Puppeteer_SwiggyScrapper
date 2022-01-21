@@ -71,7 +71,6 @@ async function getDishDetail(URL, page) {
                     });
                 }
 
-
             }
             catch (error) {
             }
@@ -80,7 +79,7 @@ async function getDishDetail(URL, page) {
         });
 
         /*   -----------    */
-        
+
         if (discountOf >= minDiscount) {
             return {
 
@@ -91,8 +90,6 @@ async function getDishDetail(URL, page) {
                 Restaurant_Dishes: dishArr,
             }
         }
-
-
 
     }, minDiscount, minDishPrice, maxDishPrice);
 
