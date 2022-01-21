@@ -54,9 +54,6 @@ async function getDishDetail(URL, page) {
             try {
                 // Condition if the Dishes having Discount offer
 
-                // /*  discounts to all orders */
-                // var discountOf = (parseInt(SpecialOfferDetail[0].slice(0, 2)));
-
                 /* Discount  Price of all the Dishes */
                 const getDiscount = parseFloat(dishPrice.innerText) - (parseFloat(dishPrice.innerText) * discountOf / 100);
 
